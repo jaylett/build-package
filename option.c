@@ -1,5 +1,5 @@
 /*
- * $Id: option.c,v 1.3 1999/09/16 16:54:14 james Exp $
+ * $Id: option.c,v 1.4 2000/12/21 15:22:23 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -18,9 +18,9 @@ char *read_option(struct module *am, char *name)
   struct module *bm=NULL;
   char *result=NULL;
   int size;
-  
+
 /*  do_error("read_option(%p, %s)", am, name);*/
-  
+
   if (am!=NULL)
     ao = find_option(am, name);
   if ((bm = find_module("global"))!=NULL)
@@ -29,17 +29,19 @@ char *read_option(struct module *am, char *name)
     do_error("erk! lost global!");*/
   if (cli!=NULL)
     co = find_option(cli, name);
-  
+
 /*  do_error("read_option(): ao = %i, bo = %i, co = %i", ao, bo, co);*/
-  
+
   /* if any are 'set', then they override; otherwise, they build up */
   if (ao>0)
   {
     bo=0;
     co=0;
   }
-  if (bo>0)
-    co=0;
+/*  if (bo>0)
+    co=0;*/
+  if (co>0)
+    bo=0; /* cli overrides global block. This makes /much/ more sense ... */
 
   if (ao==0 && bo==0 && co==0)
     return NULL; /* couldn't find it */
@@ -53,6 +55,9 @@ char *read_option(struct module *am, char *name)
          ((cs==NULL)?(0):(strlen(cs))) + 1;
   result = memalloc(size);
   result[0]=0;
+  /* cli + global + per-module. Different to absolute overrides, above, where
+   * cli is more important than global.
+   */
   if (cs!=NULL)
     strcat(result, cs);
   if (bs!=NULL)
@@ -68,7 +73,7 @@ int find_option(struct module *module, char *name)
   if (module==NULL)
     return 0;
   k = strlen(name);
-  
+
   for (i=0; i<module->num_options; i++)
   {
     int j=1;
