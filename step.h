@@ -1,5 +1,5 @@
 /*
- * $Id: step.h,v 1.1 1999/08/10 15:26:59 james Exp $
+ * $Id: step.h,v 1.2 1999/09/07 13:49:58 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -23,3 +23,4 @@ struct step *new_step();
 void run_step(struct module *, struct step *);
 void mirror_dir(char *, char *);
 void copy_source(struct module *, struct step *, char *);
+void add_source(struct step *, char const *);

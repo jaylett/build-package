@@ -1,5 +1,5 @@
 /*
- * $Id: paths.c,v 1.1 1999/08/10 15:26:59 james Exp $
+ * $Id: paths.c,v 1.2 1999/09/07 13:49:58 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -36,7 +36,7 @@ void mkdirs(char *dirpath)
           mkdir(new, 0775);
 	}
         else
-	  do_error("stat on %s failed", new);
+	  fatal_error("stat on %s failed", new);
       }
       where = new;
     }
@@ -48,8 +48,6 @@ void mkdirs(char *dirpath)
 char *makename(char *path, char *leaf)
 {
   char *result = memalloc(strlen(path)+strlen(leaf)+2);
-  if (result==NULL)
-    do_error("memory error");
   strcpy(result, path);
   result[strlen(result)+1] = 0;
   result[strlen(result)] = '/';
@@ -63,8 +61,6 @@ char *comb_paths(char *a, char *b, char *c)
   char *result;
   i = strlen(a) + (b==NULL)?(0):(strlen(b)+1) + strlen(c) + 2;
   result = memalloc(i);
-  if (result==NULL)
-    do_error("memory error");
   strcpy(result, a);
   if (b!=NULL)
   {

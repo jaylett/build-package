@@ -1,5 +1,5 @@
 /*
- * $Id: option.c,v 1.1 1999/08/10 15:26:58 james Exp $
+ * $Id: option.c,v 1.2 1999/09/07 13:49:58 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -46,7 +46,7 @@ char *read_option(struct module *am, char *name)
          (cs==NULL)?(0):(strlen(cs)) + 1;
   result = memalloc(size);
   if (result==NULL)
-    do_error("memory error");
+    fatal_error("memory error");
   result[0]=0;
   if (cs!=NULL)
     strcat(result, cs);
@@ -83,26 +83,18 @@ char *get_option(struct module *module, int opt)
   if (opt<0)
     opt *= -1;
   ptr = strchr(module->options[opt-1], '=');
-  if (ptr==NULL)
-    do_error("internal fuckwittage");
   return ptr+1;
 }
 
 void add_string(char ***opt, unsigned int *num, char const * option)
 {
-  char ** temp = rememalloc(*opt, (++*num) * sizeof(char *));
-  if (temp==NULL)
-    do_error("memory error");
+  char ** temp;
+  unsigned int number = *num;
+  temp = memrealloc(*opt, (++number) * sizeof(char *));
   *opt = temp;
-  temp[*num-1] = memalloc((strlen(option)+1) * sizeof(char));
-  if (temp[*num-1]==NULL)
-    do_error("memory error");
-  strcpy(temp[*num-1], option);
-}
-
-void add_source(struct step *step, char const * source)
-{
-  add_string(&step->sources, &step->num_sources, source);
+  temp[number-1] = memalloc((strlen(option)+1) * sizeof(char));
+  strcpy(temp[number-1], option);
+  *num = number;
 }
 
 void add_option(struct module *module, char const * option)

@@ -1,5 +1,5 @@
 /*
- * $Id: build.h,v 1.1 1999/08/10 15:26:58 james Exp $
+ * $Id: build.h,v 1.2 1999/09/07 13:49:58 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -8,6 +8,10 @@
 
 #ifndef BUILD_H
 #define BUILD_H
+
+#define PROGRAM "build-package"
+#define VERSION "0.01"
+#define COPYRIGHT "(c) James Aylett 1999"
 
 /* Need to do this vile thing to get it to build. Ugh.
  * This is for: sys_nerr, sys_errlist, symlink()
@@ -24,6 +28,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <assert.h>
 
 #include "coopt.h"
 #include "memory.h"
@@ -50,5 +55,12 @@ struct step
   /* BUILD only */
   char *in;
 };
+
+/* Are we supporting logging or not? */
+#if 0
+ #define flogf fprintf
+#else
+ #define flogf int_flogf
+#endif
 
 #endif /* BUILD_H */

@@ -1,5 +1,5 @@
 /*
- * $Id: step.c,v 1.1 1999/08/10 15:26:59 james Exp $
+ * $Id: step.c,v 1.2 1999/09/07 13:49:58 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -61,10 +61,8 @@ struct step *new_step()
 
 void add_step(struct module *module, struct step *step)
 {
-  struct step **temp = rememalloc(module->steps,
-                                (++module->num_steps) * sizeof(struct step *));
-  if (temp==NULL)
-    do_error("memory error");
+  struct step **temp = memrealloc(module->steps,
+                                  (++module->num_steps) * sizeof(struct step *));
   module->steps = temp;
   module->steps[module->num_steps-1] = step;
 }
@@ -81,7 +79,7 @@ void copy_source(struct module *mod, struct step *step, char *source)
   char *srcroot = read_option(mod, "sourceroot");
 
   if (srcroot==NULL)
-    do_error("sourceroot wasn't specified. Like, *anywhere*.");
+    fatal_error("sourceroot wasn't specified. Like, *anywhere*.");
 
   from = comb_path(srcroot, step->from, source);
   if (step->as!=NULL)
@@ -110,7 +108,7 @@ void mirror_dir(char *from, char *to)
   mkdirs(to);
 
   if ((dirn = opendir(from))==NULL)
-    do_error("couldn't open dir %s for mirroring", from);
+    fatal_error("couldn't open dir %s for mirroring", from);
 
   while ((ent = readdir(dirn))!=NULL)
   {
@@ -118,13 +116,13 @@ void mirror_dir(char *from, char *to)
     struct stat s;
     f = makename(from, ent->d_name);
     if (stat(f, &s)!=0)
-      do_error("stat on %s failed", f);
+      fatal_error("stat on %s failed", f);
     if (S_ISREG(s.st_mode))
     {
       t = makename(to, ent->d_name);
       printf("found file %s in %s; symlinking\n", ent->d_name, from);
       if (symlink(f, t)!=0)
-        do_error("failed to symlink %s to %s", f, t);
+        fatal_error("failed to symlink %s to %s", f, t);
       memfree(t);
     }
     else if (S_ISDIR(s.st_mode))
@@ -140,4 +138,9 @@ void mirror_dir(char *from, char *to)
   }
 
   closedir(dirn);
+}
+
+void add_source(struct step *step, char const * source)
+{
+  add_string(&step->sources, &step->num_sources, source);
 }

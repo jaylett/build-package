@@ -1,5 +1,5 @@
 /*
- * $Id: option.h,v 1.1 1999/08/10 15:26:58 james Exp $
+ * $Id: option.h,v 1.2 1999/09/07 13:49:58 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -16,10 +16,9 @@
 
 char *get_option(struct module *, int);
 int find_option(struct module *, char *);
-void add_string(char ***, unsigned int *, char const *);
 
 #endif /* BUILD_MAIN */
 
 void add_option(struct module *, char const * );
 char *read_option(struct module *, char *);
-void add_source(struct step *, char const *);
+void add_string(char ***, unsigned int *, char const *);
