@@ -1,5 +1,5 @@
 /*
- * $Id: main.c,v 1.4 2000/03/09 16:30:02 james Exp $
+ * $Id: main.c,v 1.5 2000/11/11 01:59:24 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -22,7 +22,6 @@ int main(int argc, char const * const * argv)
     { 'v', COOPT_NO_PARAM, "version" },
     { 'h', COOPT_NO_PARAM, "help" },
     { 'C', COOPT_REQUIRED_PARAM, "directory" },
-    { 'p', COOPT_NO_PARAM, "paranoid" }
   };
 
   tmptree = memalloc(256 + sizeof(RMCOMMAND));
@@ -45,9 +44,6 @@ int main(int argc, char const * const * argv)
 	{
 	  case 'C':
 	    startdir = strdup(ret.param);
-	    break;
-	  case 'p':
-	    paranoid=1;
 	    break;
           case 'f':
             controlfile = strdup(ret.param);
@@ -160,8 +156,11 @@ int main(int argc, char const * const * argv)
   if (num_build_modules>0 && build_modules!=NULL)
   {
     int i;
-    for (i=0; i<num_build_modules; i++)
-      build_module(find_module(build_modules[i]), 1);
+    for (i=0; i<num_build_modules; i++) {
+      do_error("\nStarting top-level module '%s'", build_modules[i]);
+      build_module(find_module(build_modules[i]), TRUE);
+      do_error("Done top-level module '%s'\n", build_modules[i]);
+    }
   }
 
   return system(tmptree - sizeof(RMCOMMAND) +1);
@@ -191,7 +190,6 @@ void do_help()
 "  -f FILE, --file=FILE    read FILE as a build.parts file\n"
 "  -C DIRECTORY, --directory=DIRECTORY\n"
 "                          root at DIRECTORY instead of parent of build.parts\n"
-"  -p, --paranoid          be paranoid; ie wipe the build area between modules\n"
 "\n"
 "  -h, --help              display this help message and quit\n"
 "  -V, --version           display version string and quit\n"

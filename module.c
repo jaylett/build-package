@@ -1,5 +1,5 @@
 /*
- * $Id: module.c,v 1.4 2000/03/09 16:30:02 james Exp $
+ * $Id: module.c,v 1.5 2000/11/11 01:59:24 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -200,8 +200,13 @@ unsigned char *slurp_file(char *file, unsigned long *used_ptr)
   FILE *fp;
   
   fp = fopen(file, "r");
-  if (fp==NULL)
+  if (fp==NULL) {
+    if (errno>=sys_nerr || sys_errlist[errno]==NULL)
+      do_error("couldn't open file '%s' (errno = %i)", file, errno);
+    else
+      do_error("couldn't open file '%s' (err = %s)", file, sys_errlist[errno]);
     return NULL;
+  }
 
 #ifndef NO_FSEEK
   fseek(fp,0,SEEK_END);
@@ -613,65 +618,71 @@ unsigned long end_of_line(unsigned char *block, unsigned long current, unsigned 
   return current;
 }
 
-void build_module(struct module *mod, int archive)
+/*
+ * Clean out a directory, ie: delete all its contents, recursively.
+ * The easiest way of doing this is 'rm -rf $(dir)/*', so we do that.
+ */
+void cleandir(char *dir)
+{
+  char* temp;
+  int ret;
+  temp = memalloc(strlen(dir)+7/*strlen("rm -rf ")*/+2/*strlen("/*")*/+1);
+  sprintf(temp, "rm -rf %s/*", dir);
+  if ((ret = system(temp)) < 0) {
+    do_error("  cleaning directory '%s' returned %i, error code %i", dir, ret, errno);
+  }
+  memfree(temp);
+}
+
+/*
+ * Build the given module.
+ *   1. clean out the build area (if flag==TRUE)
+ *   2. change back to source root
+ *   3. run build steps in turn
+ *   4. create archive (if flag==TRUE)
+ *   5. change back to source root again
+ *
+ * flag==TRUE indicates this is being built as a top-level module.
+ * Hence we have to worry about purging the build space beforehand,
+ * and making an archive at the end of it. Otherwise, it's being built
+ * as an included module as a step in another, and we ignore those
+ * aspects.
+ */
+void build_module(struct module *mod, unsigned int flag)
 {
   char *temp;
   int i;
-  int paranoid = 0;
-  do_error("*** build_module(%s) ***", mod->name);
-  if (mod==NULL || mod->done==1)
-  {
-/*    do_error("doesn't exist, or already done");*/
-    return;
-  }
-  temp = read_option(mod, "clean");
-  if (paranoid || (temp!=NULL && strcmp(temp,"yes")==0))
-    paranoia = 1;
-  if (paranoia)
-  {
-    /* paranoid about archiving, so kill everything we built here */
-    if (system(tmptree - sizeof(RMCOMMAND) +1)!=0)
-      fatal_error("couldn't delete build directory (errno = %i)", errno);
-    if (mkdir(tmptree, 0775)!=0)
-    {
-      if (errno>=sys_nerr || sys_errlist[errno]==NULL)
-	fatal_error("couldn't recreate build directory (errno = %i)", errno);
-      else
-	fatal_error("couldn't recreate build directory (err = %s)", sys_errlist[errno]);
-    }
-  }
+/*  do_error("build_module(%p)", mod);*/
+  if (mod==NULL)
+    fatal_error("module doesn't exist");
+
+  if (flag==TRUE)
+    /* clean out the temp build area */
+    cleandir(tmptree);
+
+  /* set ourselves back into the source root, because something's bound to have screwed it up */
+  chdir(startdir);
+
   /* run the build steps */
   for (i=0; i<mod->num_steps; i++)
     run_step(mod, mod->steps[i]);
-  if (!archive)
-    return;
-  /* make the archive */
-  if (chdir(tmptree)!=0)
-    fatal_error("couldn't chdir(): errno = %i", errno);
-  i = strlen(read_option(mod, "archive")) + 1 +
-      strlen(read_option(mod, "archiveroot")) + 1 +
-      strlen(mod->name) + strlen(read_option(mod, "archiveext")) + 1 +
-      strlen(read_option(mod, "targets"))+ 1;
-  temp = memalloc(i);
-  mkdirs(read_option(mod, "archiveroot"));
-  sprintf(temp, "%s %s/%s%s %s", read_option(mod, "archive"),
-	                      read_option(mod, "archiveroot"),
-	                      mod->name, read_option(mod, "archiveext"),
-	                      read_option(mod, "targets"));
-  do_error(temp);
-  if ((i=system(temp))!=0)
-    fatal_error("archive command returned %i (errno = %i)", i, errno);
-  memfree(temp);
+
+  if (flag==TRUE) {
+    /* make the archive */
+    if (chdir(tmptree)!=0)
+      fatal_error("couldn't chdir(): errno = %i", errno);
+    temp = memalloc(strlen(read_option(mod, "archive"))+1+strlen(read_option(mod,"archiveroot"))+1+strlen(mod->name)+strlen(read_option(mod,"archiveext"))+1+strlen(read_option(mod, "targets"))+1);
+    mkdirs(read_option(mod, "archiveroot"));
+    sprintf(temp, "%s %s/%s%s %s", read_option(mod, "archive"), read_option(mod,"archiveroot"), mod->name, read_option(mod,"archiveext"), read_option(mod, "targets"));
+    do_error("constructed command '%s'", temp);
+    if ((i = system(temp)) < 0) {
+      do_error("  archive command '%s' returned %i, error code %i", temp, i, errno);
+    }
+    memfree(temp);
+  }
+  /* set ourselves back into the source root, because something's bound to have screwed it up */
   if (chdir(startdir)!=0)
     fatal_error("couldn't chdir(): errno = %i", errno);
-  if (!paranoia)
-  {
-    /*
-     * Only done if we're not being paranoid about either this module
-     * or life in general
-     */
-    mod->done=1;
-  }
 }
 
 struct module *find_module(char *name)
@@ -706,6 +717,5 @@ struct module *new_module(char *name)
   t->num_options=0;
   t->steps=NULL;
   t->num_steps=0;
-  t->done=0;
   return t;
 }

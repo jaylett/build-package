@@ -1,5 +1,5 @@
 /*
- * $Id: build.h,v 1.3 1999/09/16 16:54:13 james Exp $
+ * $Id: build.h,v 1.4 2000/11/11 01:59:24 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -11,7 +11,7 @@
 
 #define PROGRAM "build-package"
 #define VERSION "0.01"
-#define COPYRIGHT "(c) James Aylett 1999"
+#define COPYRIGHT "(c) James Aylett 1999-2000"
 
 /* Need to do this vile thing to get it to build. Ugh.
  * This is for: sys_nerr, sys_errlist, symlink()
@@ -33,6 +33,11 @@
 #include "coopt.h"
 #include "memory.h"
 
+#ifndef FALSE
+#define FALSE (0)
+#define TRUE (1)
+#endif
+
 struct module
 {
   char *name;
@@ -40,7 +45,6 @@ struct module
   unsigned int num_options;
   struct step **steps;
   unsigned int num_steps;
-  unsigned int done;
 };
 
 struct step

@@ -1,5 +1,5 @@
 /*
- * $Id: module.h,v 1.4 2000/03/09 16:30:02 james Exp $
+ * $Id: module.h,v 1.5 2000/11/11 01:59:24 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -27,6 +27,7 @@ unsigned long skip_wsp(unsigned char *, unsigned long, unsigned long);
 unsigned long skip_to_char(unsigned char *, unsigned long, unsigned long, unsigned char, int);
 unsigned long end_of_line(unsigned char *, unsigned long, unsigned long);
 unsigned long skip_line(unsigned char *, unsigned long, unsigned long);
+void cleandir(char *);
 
 #else /* BUILD_MAIN */
 
@@ -37,5 +38,5 @@ extern struct module **modules;
 struct module *find_module(char *);
 struct module *new_module(char *);
 void scan_modules(char *);
-void build_module(struct module *, int);
+void build_module(struct module *, unsigned int);
 unsigned char *slurp_file(char *, unsigned long *);

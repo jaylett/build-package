@@ -1,16 +1,4 @@
- * "run archive command in this directory under the temp dir" option?
- 
- * --paranoid should clear at the _start_ of an archiving module, and should
-   be an option at the module level (paranoid=yes or something). Probably
-   call it something other than paranoid, too, since this is very misleading.
-
- * allow temp dir to be altered per-module? Or is this too much hassle?
-
- * I have a feeling that since mirroring a directory structure isn't much
-   hassle, it's easier to do the copy/module steps _always_, but only do
-   build steps if they haven't been done before or if we're being paranoid
-   about getting the correct build.
-
  * documentation.
- 
  * proper build system, using autoconf et al.
+ * boilerplates, etc..
+ * release!

@@ -1,5 +1,5 @@
 /*
- * $Id: step.c,v 1.4 2000/03/09 16:30:02 james Exp $
+ * $Id: step.c,v 1.5 2000/11/11 01:59:24 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -21,7 +21,7 @@ void run_step(struct module *mod, struct step *step)
       if (step->using!=NULL)
       {
 	int ret;
-        do_error("\nrunning build command '%s'", step->using);
+        do_error(" running build command '%s'", step->using);
         if (step->in!=NULL)
 	{
           char *t = trans_path(read_option(mod, "sourceroot"), step->in);
@@ -52,7 +52,7 @@ void run_step(struct module *mod, struct step *step)
 	    unsigned char *block, *ptr;
 	    unsigned long used;
 	    char *srclist, *srcroot;
-	    do_error("\ncopying source list '%s'", step->sources[i]+1);
+	    do_error(" copying source list '%s'", step->sources[i]+1);
 	    srcroot = read_option(mod, "sourceroot");
 	    srclist = comb_path(srcroot, step->from, step->sources[i]+1);
 	    if ((block = slurp_file(srclist, &used))==NULL)
@@ -72,7 +72,7 @@ void run_step(struct module *mod, struct step *step)
 	}
 	else
 	{
-	  do_error("\ncopying source '%s'", step->sources[i]);
+	  do_error(" copying source '%s'", step->sources[i]);
 	  copy_source(mod, step, step->sources[i]);
 	}
       }
@@ -82,8 +82,8 @@ void run_step(struct module *mod, struct step *step)
       {
 	for (i=0; i<step->num_sources; i++)
 	{
-	  do_error("\nbuilding module '%s'", step->sources[i]);
-	  build_module(find_module(step->sources[i]), 0);
+	  do_error(" building module '%s'", step->sources[i]);
+	  build_module(find_module(step->sources[i]), FALSE);
 	}
       }
       break;

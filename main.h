@@ -1,5 +1,5 @@
 /*
- * $Id: main.h,v 1.4 2000/03/09 16:30:02 james Exp $
+ * $Id: main.h,v 1.5 2000/11/11 01:59:24 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -27,14 +27,12 @@ struct module *cli;
 char *do_getcwd(void);
 void do_help(void);
 void do_version(void);
-int paranoid=0;
 
 #else /* BUILD_MAIN */
 
 extern char *tmptree;
 extern char *startdir;
 extern struct module *cli;
-extern int paranoid;
 
 #endif /* BUILD_MAIN */
 
