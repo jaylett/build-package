@@ -1,5 +1,5 @@
 /*
- * $Id: step.c,v 1.6 2001/01/14 15:37:43 james Exp $
+ * $Id: step.c,v 1.7 2002/02/01 13:06:29 james Exp $
  * build-package
  * (c) Copyright James Aylett
  *
@@ -37,56 +37,53 @@ void run_step(struct module *mod, struct step *step)
 	if (chdir(startdir)!=0)
 	  fatal_error("couldn't chdir(): errno = %i", errno);
       }
-      for (i=0; i<step->num_sources; i++)
-      {
-	if (step->sources[i][0]==':')
-	{
-	  if (step->sources[i][1]==0)
-	  {
-	    /* ignore - this source list has already been looked up and
-	     * added, line by line
-	     */
-	  }
-	  else
-	  {
-	    unsigned char *block, *ptr;
-	    unsigned long used;
-	    char *srclist, *srcroot;
-	    do_error(" copying source list '%s'", step->sources[i]+1);
-	    srcroot = read_option(mod, "sourceroot");
-	    srclist = comb_path(srcroot, step->from, step->sources[i]+1);
-	    if ((block = slurp_file(srclist, &used))==NULL)
-	      fatal_error("Couldn't load source list %s", step->sources[i]+1);
-	    ptr = strtok(block, "\n");
-	    while (ptr!=NULL && (ptr - block)<used)
-	    {
-/*	      do_error("found another at %i, maximum %i", ptr-block, used);*/
-	      add_source(step, ptr);
-	      ptr = strtok(NULL, "\n");
-	    }
-	    memfree(srcroot);
-	    memfree(srclist);
-	    memfree(block);
-	    step->sources[i][1]=0; /* don't do this again */
-	  }
-	}
-	else
-	{
-	  do_error(" copying source '%s'", step->sources[i]);
-	  copy_source(mod, step, step->sources[i]);
-	}
-      }
       break;
-    case STEPmodule:
-      if (step->sources!=NULL)
-      {
-	for (i=0; i<step->num_sources; i++)
-	{
-	  do_error(" building module '%s'", step->sources[i]);
-	  build_module(find_module(step->sources[i]), FALSE);
+  }
+
+  if (step->sources==NULL) {
+    return;
+  }
+
+  /* Modules, copy and build can all use source lists */
+  for (i=0; i<step->num_sources; i++) {
+    if (step->sources[i][0]==':') {
+      if (step->sources[i][1]==0) {
+	/* ignore - this source list has already been looked up and
+	 * added, line by line
+	 */
+      } else {
+	unsigned char *block, *ptr;
+	unsigned long used;
+	char *srclist, *srcroot;
+	do_error(" copying source list '%s'", step->sources[i]+1);
+	srcroot = read_option(mod, "sourceroot");
+	srclist = comb_path(srcroot, step->from, step->sources[i]+1);
+	if ((block = slurp_file(srclist, &used))==NULL)
+	  fatal_error("Couldn't load source list %s", step->sources[i]+1);
+	ptr = strtok(block, "\n");
+	while (ptr!=NULL && (ptr - block)<used) {
+/*	    do_error("found another at %i, maximum %i", ptr-block, used);*/
+	  add_source(step, ptr);
+	  ptr = strtok(NULL, "\n");
 	}
+	memfree(srcroot);
+	memfree(srclist);
+	memfree(block);
+	step->sources[i][1]=0; /* don't do this again */
       }
-      break;
+    } else {
+      switch (step->type) {
+      case STEPbuild:
+      case STEPcopy:
+	do_error(" copying source '%s'", step->sources[i]);
+	copy_source(mod, step, step->sources[i]);
+	break;
+      case STEPmodule:
+	do_error(" building module '%s'", step->sources[i]);
+	build_module(find_module(step->sources[i]), FALSE);
+	break;
+      }
+    }
   }
 }
 
@@ -226,8 +223,10 @@ int do_symlink(const char *old, const char *new)
   temp = makename(startdir, (char *)old);
   result = symlink(temp, new);
   memfree(temp);
-  if (result<0 && errno==EEXIST)
+  if (result<0 && errno==EEXIST) {
+    do_error("! cannot link %s to %s: already exists", old, new);
     result=0;
+  }
   return result;
 }
 

@@ -1,5 +1,5 @@
 /*
- * $Id: module.c,v 1.7 2001/01/14 15:37:43 james Exp $
+ * $Id: module.c,v 1.8 2002/02/01 13:06:29 james Exp $
  * build-package
  * (c) Copyright James Aylett
  *
@@ -239,8 +239,8 @@ unsigned char *slurp_file(char *file, unsigned long *used_ptr)
   {
     block = (unsigned char *)memrealloc((void *)block, (size_t)(current+1));
     current+=(unsigned long)length;
-    block[used]=0; /* terminate with a NUL (don't increment used) */
   }
+  block[used]=0; /* terminate with a NUL (don't increment used) */
 
   *used_ptr = used;
   return block;

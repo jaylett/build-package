@@ -1,5 +1,5 @@
 /*
- * $Id: main.c,v 1.7 2001/02/11 15:41:30 james Exp $
+ * $Id: main.c,v 1.8 2002/02/01 13:06:29 james Exp $
  * build-package
  * (c) Copyright James Aylett
  *
@@ -7,6 +7,44 @@
  */
 
 #include "main.h"
+
+void do_add_modules(char*** build_modules,
+		    unsigned int* num_build_modules,
+		    char* mods)
+{
+  char *tok, *buf, *savebuf;
+  buf = (char*)memalloc(strlen(mods)+1);
+  buf[0]=0;
+  savebuf = buf;
+  /*  do_error("do_add_modules(,,%s)", mods);*/
+  tok = strtok_r(mods, " \t\n", &buf);
+  while (tok!=NULL) {
+    /*    do_error("Considering token '%s', remaining '%s'", tok, tok+strlen(tok)+1);*/
+    if (tok[0]==':') { /* read in from a file */
+      char *srcroot,  *src, *more_mods;
+      unsigned long used;
+
+      /*      do_error("+++ adding list to build %s", tok);*/
+
+      srcroot = read_option(NULL, "sourceroot");
+      /*      do_error("+++ sourceroot=%s", srcroot);*/
+      src = tok+1; /* FIXME: not quite sure where this should be relative to? */
+      if ((more_mods = slurp_file(src, &used))==NULL)
+	fatal_error("Couldn't load list %s", tok+1);
+      do_add_modules(build_modules, num_build_modules, more_mods);
+      /*      do_error("+++ added list to build %s", tok);*/
+      memfree(srcroot);
+      /*      memfree(src); -- need if we comb_paths() or similar */
+      memfree(more_mods);
+    } else {
+      /*      do_error("adding module to build %s", tok);*/
+      add_string(build_modules, num_build_modules, tok);
+    }
+    /*    do_error("Considered token '%s', remaining '%s'", tok, tok+strlen(tok)+1);*/
+    tok = strtok_r(NULL, " \t\n", &buf);
+  }
+  memfree(savebuf);
+}
 
 int main(int argc, char const * const * argv)
 {
@@ -137,20 +175,14 @@ int main(int argc, char const * const * argv)
 
   if (num_build_modules==0 || build_modules==NULL)
   {
-    char *mods, *tok;
+    char *mods;
     mods = read_option(NULL, "all");
     /* okay, so 'mods' has been created by memalloc(), so we can use strtok()
      * (eeek!)
      */
     if (mods==NULL)
       fatal_error("Couldn't read option 'all', and no modules supplied on command line.");
-    tok = strtok(mods, " \t");
-    while (tok!=NULL)
-    {
-/*      do_error("adding module to build %s", tok);*/
-      add_string(&build_modules, &num_build_modules, tok);
-      tok = strtok(NULL, " \t");
-    }
+    do_add_modules(&build_modules, &num_build_modules, mods);
     memfree(mods);
   }
 

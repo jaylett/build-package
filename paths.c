@@ -1,5 +1,5 @@
 /*
- * $Id: paths.c,v 1.4 2001/01/14 15:37:43 james Exp $
+ * $Id: paths.c,v 1.5 2002/02/01 13:06:29 james Exp $
  * build-package
  * (c) Copyright James Aylett
  *
@@ -80,6 +80,7 @@ char *comb_paths(char *a, char *b, char *c)
 {
   int i;
   char *result;
+  /*  do_error("comb_paths(%s,%s,%s)", a, b, c);*/
   i = strlen(a) + ((b==NULL)?(0):(strlen(b)+1)) + strlen(c) + 2;
   result = memalloc(i);
   strcpy(result, a);
