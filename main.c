@@ -1,5 +1,5 @@
 /*
- * $Id: main.c,v 1.8 2002/02/01 13:06:29 james Exp $
+ * $Id: main.c,v 1.9 2002/09/18 10:57:34 james Exp $
  * build-package
  * (c) Copyright James Aylett
  *
@@ -61,6 +61,7 @@ int main(int argc, char const * const * argv)
     { 'h', COOPT_NO_PARAM, "help" },
     { 'C', COOPT_REQUIRED_PARAM, "directory" },
     { 'i', COOPT_NO_PARAM, "ignore-cvs" },
+    { 'b', COOPT_NO_PARAM, "ignore-backups" },
   };
 
   tmptree = memalloc(256 + sizeof(RMCOMMAND));
@@ -89,6 +90,9 @@ int main(int argc, char const * const * argv)
             break;
           case 'i':
             ignore_cvs = TRUE;
+            break;
+          case 'b':
+            ignore_backups = TRUE;
             break;
           case 'h':
             do_help();
@@ -224,6 +228,7 @@ void do_help()
 "  -C DIRECTORY, --directory=DIRECTORY\n"
 "                          root at DIRECTORY instead of parent of build.parts\n"
 "  -i, --ignore-cvs        skip CVS dirs, .cvsignore files\n"
+"  -b, --ignore-backups    skip backup (~) files\n"
 "\n"
 "  -h, --help              display this help message and quit\n"
 "  -V, --version           display version string and quit\n"

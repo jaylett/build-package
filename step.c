@@ -1,5 +1,5 @@
 /*
- * $Id: step.c,v 1.7 2002/02/01 13:06:29 james Exp $
+ * $Id: step.c,v 1.8 2002/09/18 10:57:34 james Exp $
  * build-package
  * (c) Copyright James Aylett
  *
@@ -140,8 +140,11 @@ void copy_source(struct module *mod, struct step *step, char *source)
  *
  * If ignore_cvs is TRUE, then we skip any directory called 'CVS'
  * and any file called '.cvsignore'.
- * (This allows us to build production archives out of the working
+ * If ignore_backups is TRUE, then we skip any file ending '~'.
+ *
+ * (These allow us to build production archives out of the working
  * directory without doing a 'cvs export' as a temp step.)
+ *
  */
 void mirror_dir(char *from, char *to)
 {
@@ -183,7 +186,8 @@ void mirror_dir(char *from, char *to)
 	fatal_error("stat on %s failed", f);
       if (S_ISREG(s.st_mode))
       {
-        if (!(strcmp(ent->d_name, ".cvsignore")==0 && ignore_cvs)) {
+        if (!((strcmp(ent->d_name, ".cvsignore")==0 && ignore_cvs) ||
+	      (ent->d_name[strlen(ent->d_name)-1]=='~' && ignore_backups))) {
 	  t = makename(to, ent->d_name);
 /*	do_error("    found file %s in %s; symlinking", ent->d_name, from);*/
           if (do_symlink(f, t)!=0)

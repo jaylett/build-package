@@ -1,5 +1,5 @@
 /*
- * $Id: main.h,v 1.6 2001/01/14 15:37:43 james Exp $
+ * $Id: main.h,v 1.7 2002/09/18 10:57:34 james Exp $
  * build-package
  * (c) Copyright James Aylett
  *
@@ -24,6 +24,7 @@ char *tmptree;
 char *startdir=NULL;
 struct module *cli;
 int ignore_cvs = FALSE;
+int ignore_backups = FALSE;
 
 char *do_getcwd(void);
 void do_help(void);
@@ -35,6 +36,7 @@ extern char *tmptree;
 extern char *startdir;
 extern struct module *cli;
 extern int ignore_cvs;
+extern int ignore_backups;
 
 #endif /* BUILD_MAIN */
 
