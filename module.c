@@ -1,5 +1,5 @@
 /*
- * $Id: module.c,v 1.3 1999/09/16 16:54:14 james Exp $
+ * $Id: module.c,v 1.4 2000/03/09 16:30:02 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -613,28 +613,65 @@ unsigned long end_of_line(unsigned char *block, unsigned long current, unsigned 
   return current;
 }
 
-void build_module(struct module *mod)
+void build_module(struct module *mod, int archive)
 {
   char *temp;
   int i;
-/*  do_error("build_module(%p)", mod);*/
+  int paranoid = 0;
+  do_error("*** build_module(%s) ***", mod->name);
   if (mod==NULL || mod->done==1)
   {
 /*    do_error("doesn't exist, or already done");*/
     return;
   }
+  temp = read_option(mod, "clean");
+  if (paranoid || (temp!=NULL && strcmp(temp,"yes")==0))
+    paranoia = 1;
+  if (paranoia)
+  {
+    /* paranoid about archiving, so kill everything we built here */
+    if (system(tmptree - sizeof(RMCOMMAND) +1)!=0)
+      fatal_error("couldn't delete build directory (errno = %i)", errno);
+    if (mkdir(tmptree, 0775)!=0)
+    {
+      if (errno>=sys_nerr || sys_errlist[errno]==NULL)
+	fatal_error("couldn't recreate build directory (errno = %i)", errno);
+      else
+	fatal_error("couldn't recreate build directory (err = %s)", sys_errlist[errno]);
+    }
+  }
   /* run the build steps */
   for (i=0; i<mod->num_steps; i++)
     run_step(mod, mod->steps[i]);
+  if (!archive)
+    return;
   /* make the archive */
-  do_error("ought to run '%s' (%s/%s%s) in %s\n",
-	   read_option(mod, "archive"), read_option(mod, "archiveroot"),
-	   mod->name, read_option(mod, "archiveext"), tmptree);
-  /* FIXME: run the 'archive' option followed by mod->name'archiveext'
-   * and the complete contents of 'tmptree'.
-   * chdir() to 'tmptree' first.
-   */
-  mod->done=1;
+  if (chdir(tmptree)!=0)
+    fatal_error("couldn't chdir(): errno = %i", errno);
+  i = strlen(read_option(mod, "archive")) + 1 +
+      strlen(read_option(mod, "archiveroot")) + 1 +
+      strlen(mod->name) + strlen(read_option(mod, "archiveext")) + 1 +
+      strlen(read_option(mod, "targets"))+ 1;
+  temp = memalloc(i);
+  mkdirs(read_option(mod, "archiveroot"));
+  sprintf(temp, "%s %s/%s%s %s", read_option(mod, "archive"),
+	                      read_option(mod, "archiveroot"),
+	                      mod->name, read_option(mod, "archiveext"),
+	                      read_option(mod, "targets"));
+  do_error(temp);
+  if ((i=system(temp))!=0)
+    fatal_error("archive command returned %i (errno = %i)", i, errno);
+  memfree(temp);
+  if (chdir(startdir)!=0)
+    fatal_error("couldn't chdir(): errno = %i", errno);
+  if (!paranoia)
+  {
+    /*
+     * Only done if we're not being paranoid about either this module
+     * or life in general
+     */
+    mod->done=1;
+  }
 }
 
 struct module *find_module(char *name)

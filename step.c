@@ -1,5 +1,5 @@
 /*
- * $Id: step.c,v 1.3 1999/09/16 16:54:15 james Exp $
+ * $Id: step.c,v 1.4 2000/03/09 16:30:02 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -30,11 +30,12 @@ void run_step(struct module *mod, struct step *step)
 	    fatal_error("couldn't chdir(): errno = %i", errno);
           memfree(t);
 	}
-	if ((ret = system(step->using)) < 0)
+	if ((ret = system(step->using)) != 0)
 	{
 	  do_error("  build command '%s' returned %i, error code %i", step->using, ret, errno);
 	}
-	chdir(startdir);
+	if (chdir(startdir)!=0)
+	  fatal_error("couldn't chdir(): errno = %i", errno);
       }
       for (i=0; i<step->num_sources; i++)
       {
@@ -82,7 +83,7 @@ void run_step(struct module *mod, struct step *step)
 	for (i=0; i<step->num_sources; i++)
 	{
 	  do_error("\nbuilding module '%s'", step->sources[i]);
-	  build_module(find_module(step->sources[i]));
+	  build_module(find_module(step->sources[i]), 0);
 	}
       }
       break;

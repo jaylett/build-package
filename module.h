@@ -1,5 +1,5 @@
 /*
- * $Id: module.h,v 1.3 1999/09/16 16:54:14 james Exp $
+ * $Id: module.h,v 1.4 2000/03/09 16:30:02 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -37,5 +37,5 @@ extern struct module **modules;
 struct module *find_module(char *);
 struct module *new_module(char *);
 void scan_modules(char *);
-void build_module(struct module *);
+void build_module(struct module *, int);
 unsigned char *slurp_file(char *, unsigned long *);

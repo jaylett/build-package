@@ -1,5 +1,5 @@
 /*
- * $Id: main.c,v 1.3 1999/09/16 16:54:14 james Exp $
+ * $Id: main.c,v 1.4 2000/03/09 16:30:02 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -21,7 +21,8 @@ int main(int argc, char const * const * argv)
     { 'f', COOPT_REQUIRED_PARAM, "file" },
     { 'v', COOPT_NO_PARAM, "version" },
     { 'h', COOPT_NO_PARAM, "help" },
-    { 'C', COOPT_REQUIRED_PARAM, "directory" }
+    { 'C', COOPT_REQUIRED_PARAM, "directory" },
+    { 'p', COOPT_NO_PARAM, "paranoid" }
   };
 
   tmptree = memalloc(256 + sizeof(RMCOMMAND));
@@ -44,6 +45,9 @@ int main(int argc, char const * const * argv)
 	{
 	  case 'C':
 	    startdir = strdup(ret.param);
+	    break;
+	  case 'p':
+	    paranoid=1;
 	    break;
           case 'f':
             controlfile = strdup(ret.param);
@@ -120,13 +124,13 @@ int main(int argc, char const * const * argv)
   }
 /*  do_error("chdir(%s)", startdir);*/
   if (chdir(startdir)!=0)
-    fatal_error("couldn't change to start dir: errno = %i", errno);
+    fatal_error("couldn't chdir: errno = %i", errno);
 
   temp = read_option(NULL, "temproot");
   sprintf(tmptree, "%s/%s.%i", (temp==NULL)?("/tmp"):(temp), PROGRAM, (int)getpid());
   memfree(temp);
 /*  do_error("tmptree = %s", tmptree);*/
-  if ((deltree = mkdir(tmptree, 0775))==-1)
+  if (mkdir(tmptree, 0775)!=0)
   {
     if (errno>=sys_nerr || sys_errlist[errno]==NULL)
       fatal_error("couldn't create build directory (errno = %i)", errno);
@@ -157,7 +161,7 @@ int main(int argc, char const * const * argv)
   {
     int i;
     for (i=0; i<num_build_modules; i++)
-      build_module(find_module(build_modules[i]));
+      build_module(find_module(build_modules[i]), 1);
   }
 
   return system(tmptree - sizeof(RMCOMMAND) +1);
@@ -187,6 +191,7 @@ void do_help()
 "  -f FILE, --file=FILE    read FILE as a build.parts file\n"
 "  -C DIRECTORY, --directory=DIRECTORY\n"
 "                          root at DIRECTORY instead of parent of build.parts\n"
+"  -p, --paranoid          be paranoid; ie wipe the build area between modules\n"
 "\n"
 "  -h, --help              display this help message and quit\n"
 "  -V, --version           display version string and quit\n"
