@@ -1,7 +1,7 @@
 /*
- * $Id: module.c,v 1.6 2001/01/14 14:18:55 james Exp $
+ * $Id: module.c,v 1.7 2001/01/14 15:37:43 james Exp $
  * build-package
- * (c) Copyright James Aylett 1999
+ * (c) Copyright James Aylett
  *
  * build-package is released under the GPL.
  */

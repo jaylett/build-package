@@ -1,7 +1,7 @@
 /*
- * $Id: step.h,v 1.2 1999/09/07 13:49:58 james Exp $
+ * $Id: step.h,v 1.3 2001/01/14 15:37:43 james Exp $
  * build-package
- * (c) Copyright James Aylett 1999
+ * (c) Copyright James Aylett
  *
  * build-package is released under the GPL.
  */

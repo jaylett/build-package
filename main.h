@@ -1,7 +1,7 @@
 /*
- * $Id: main.h,v 1.5 2000/11/11 01:59:24 james Exp $
+ * $Id: main.h,v 1.6 2001/01/14 15:37:43 james Exp $
  * build-package
- * (c) Copyright James Aylett 1999
+ * (c) Copyright James Aylett
  *
  * build-package is released under the GPL.
  */
@@ -23,6 +23,7 @@
 char *tmptree;
 char *startdir=NULL;
 struct module *cli;
+int ignore_cvs = FALSE;
 
 char *do_getcwd(void);
 void do_help(void);
@@ -33,6 +34,7 @@ void do_version(void);
 extern char *tmptree;
 extern char *startdir;
 extern struct module *cli;
+extern int ignore_cvs;
 
 #endif /* BUILD_MAIN */
 

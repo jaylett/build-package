@@ -1,7 +1,7 @@
 /*
- * $Id: main.c,v 1.5 2000/11/11 01:59:24 james Exp $
+ * $Id: main.c,v 1.6 2001/01/14 15:37:43 james Exp $
  * build-package
- * (c) Copyright James Aylett 1999
+ * (c) Copyright James Aylett
  *
  * build-package is released under the GPL.
  */
@@ -22,6 +22,7 @@ int main(int argc, char const * const * argv)
     { 'v', COOPT_NO_PARAM, "version" },
     { 'h', COOPT_NO_PARAM, "help" },
     { 'C', COOPT_REQUIRED_PARAM, "directory" },
+    { 'i', COOPT_NO_PARAM, "ignore-cvs" },
   };
 
   tmptree = memalloc(256 + sizeof(RMCOMMAND));
@@ -47,6 +48,9 @@ int main(int argc, char const * const * argv)
 	    break;
           case 'f':
             controlfile = strdup(ret.param);
+            break;
+          case 'i':
+            ignore_cvs = TRUE;
             break;
           case 'h':
             do_help();
@@ -171,7 +175,7 @@ char *do_getcwd()
 {
   char *buf=NULL, *res=NULL;
   int len = 0;
-  
+
   do
   {
     len+=PATH_MAX;
@@ -190,6 +194,7 @@ void do_help()
 "  -f FILE, --file=FILE    read FILE as a build.parts file\n"
 "  -C DIRECTORY, --directory=DIRECTORY\n"
 "                          root at DIRECTORY instead of parent of build.parts\n"
+"  -i, --ignore-cvs        skip CVS dirs, .cvsignore files\n"
 "\n"
 "  -h, --help              display this help message and quit\n"
 "  -V, --version           display version string and quit\n"

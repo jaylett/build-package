@@ -1,7 +1,7 @@
 /*
- * $Id: option.c,v 1.4 2000/12/21 15:22:23 james Exp $
+ * $Id: option.c,v 1.5 2001/01/14 15:37:43 james Exp $
  * build-package
- * (c) Copyright James Aylett 1999
+ * (c) Copyright James Aylett
  *
  * build-package is released under the GPL.
  */

@@ -1,7 +1,7 @@
 /*
- * $Id: build.h,v 1.4 2000/11/11 01:59:24 james Exp $
+ * $Id: build.h,v 1.5 2001/01/14 15:37:43 james Exp $
  * build-package
- * (c) Copyright James Aylett 1999
+ * (c) Copyright James Aylett
  *
  * build-package is released under the GPL.
  */
@@ -10,8 +10,8 @@
 #define BUILD_H
 
 #define PROGRAM "build-package"
-#define VERSION "0.01"
-#define COPYRIGHT "(c) James Aylett 1999-2000"
+#define VERSION "0.02"
+#define COPYRIGHT "(c) James Aylett 1999-2001"
 
 /* Need to do this vile thing to get it to build. Ugh.
  * This is for: sys_nerr, sys_errlist, symlink()
