@@ -1,5 +1,5 @@
 /*
- * $Id: build.h,v 1.5 2001/01/14 15:37:43 james Exp $
+ * $Id: build.h,v 1.6 2001/02/11 15:41:30 james Exp $
  * build-package
  * (c) Copyright James Aylett
  *
@@ -10,7 +10,6 @@
 #define BUILD_H
 
 #define PROGRAM "build-package"
-#define VERSION "0.02"
 #define COPYRIGHT "(c) James Aylett 1999-2001"
 
 /* Need to do this vile thing to get it to build. Ugh.
