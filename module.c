@@ -1,5 +1,5 @@
 /*
- * $Id: module.c,v 1.5 2000/11/11 01:59:24 james Exp $
+ * $Id: module.c,v 1.6 2001/01/14 14:18:55 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -48,7 +48,7 @@ void scan_modules(char *file)
     current = skip_wsp(block, current, used);
     if (current<line_end)
     {
-      flogf(stderr, "Processing line: from %i to %i (next line starts at %i). Starts '%c'.\n", current, line_end, next_line, block[current]);
+/*      flogf(stderr, "Processing line: from %i to %i (next line starts at %i). Starts '%c'.\n", current, line_end, next_line, block[current]);*/
       if (block[current]=='[')
       {
         /* New module */
@@ -73,7 +73,7 @@ void scan_modules(char *file)
         if (block[end]=='=')
         {
           /* option */
-	  do_error("Processing line: found option <%s>.", block+current);
+/*	  do_error("Processing line: found option <%s>.", block+current);*/
           add_option(module, block+current);
         }
         else
@@ -82,7 +82,7 @@ void scan_modules(char *file)
           struct step *step = new_step();
 	  unsigned long next_object = skip_object(block, current, used);
           block[end]=0;
-	  do_error("Processing line: found step <%s>.", block+current);
+/*	  do_error("Processing line: found step <%s>.", block+current);*/
           if (strcmp(block+current, "COPY")==0)
           {
             step->type = STEPcopy;
@@ -198,7 +198,7 @@ unsigned char *slurp_file(char *file, unsigned long *used_ptr)
   long length;
   unsigned char *block;
   FILE *fp;
-  
+
   fp = fopen(file, "r");
   if (fp==NULL) {
     if (errno>=sys_nerr || sys_errlist[errno]==NULL)
@@ -567,7 +567,7 @@ unsigned long skip_line(unsigned char *block, unsigned long current, unsigned lo
 unsigned long end_of_line(unsigned char *block, unsigned long current, unsigned long used)
 {
   enum { NORMAL, SINGLE_QUOTED, DOUBLE_QUOTED, STOP } state = NORMAL;
-  flogf(stderr, "Processing line: <");
+/*  flogf(stderr, "Processing line: <");*/
   while (current<used && state!=STOP)
   {
     switch (block[current])
@@ -582,14 +582,14 @@ unsigned long end_of_line(unsigned char *block, unsigned long current, unsigned 
           state=SINGLE_QUOTED;
         else if (state==SINGLE_QUOTED)
           state=NORMAL;
-        flogf(stderr, "'");
+/*        flogf(stderr, "'");*/
         break;
       case '"':
         if (state==NORMAL)
           state=DOUBLE_QUOTED;
         else if (state==DOUBLE_QUOTED)
           state=NORMAL;
-        flogf(stderr, "\"");
+/*        flogf(stderr, "\"");*/
         break;
       case '\\':
         if (current+1<used)
@@ -598,23 +598,23 @@ unsigned long end_of_line(unsigned char *block, unsigned long current, unsigned 
           {
             block[current]=32;
             block[current+1]=32;
-	    flogf(stderr, " ");
+/*	    flogf(stderr, " ");*/
           }
           else if (state==DOUBLE_QUOTED || state==SINGLE_QUOTED)
           {
             current++;
-	    flogf(stderr, "\\%c",block[current]);
+/*	    flogf(stderr, "\\%c",block[current]);*/
           }
         }
         break;
       default:
-        flogf(stderr, "%c", block[current]);
+/*        flogf(stderr, "%c", block[current]);*/
         break;
     }
     if (state!=STOP)
       current++;
   }
-  flogf(stderr, ">\n");
+/*  flogf(stderr, ">\n");*/
   return current;
 }
 
@@ -706,7 +706,7 @@ struct module *new_module(char *name)
   struct module ** temp  = memrealloc(modules,
                                       (++num_modules) * sizeof(struct module *));
   struct module * t;
-  
+
   flogf(stderr, "New module:      <%s>\n", name);
 
   modules = temp;
