@@ -1,0 +1,4 @@
+ * actually runs archive command
+ * "run archive command in this directory under the temp dir" option?
+ * documentation
+ * proper build system, using autoconf et al
