@@ -1,2 +1,3 @@
 Author: James Aylett <james@tartarus.org>
 Description: build-package makes release archives out of a build tree, building files it needs as it goes. It is designed to allow automatic releases built from CVS.
+Status: Functional, but without documentation or a proper build system. Use at your own risk.
