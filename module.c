@@ -1,5 +1,5 @@
 /*
- * $Id: module.c,v 1.2 1999/09/07 13:49:58 james Exp $
+ * $Id: module.c,v 1.3 1999/09/16 16:54:14 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -73,7 +73,7 @@ void scan_modules(char *file)
         if (block[end]=='=')
         {
           /* option */
-	  fprintf(stderr, "Processing line: found option <%s>.\n", block+current);
+	  do_error("Processing line: found option <%s>.", block+current);
           add_option(module, block+current);
         }
         else
@@ -82,7 +82,7 @@ void scan_modules(char *file)
           struct step *step = new_step();
 	  unsigned long next_object = skip_object(block, current, used);
           block[end]=0;
-	  fprintf(stderr, "Processing line: found step <%s>.\n", block+current);
+	  do_error("Processing line: found step <%s>.", block+current);
           if (strcmp(block+current, "COPY")==0)
           {
             step->type = STEPcopy;
@@ -110,6 +110,7 @@ void scan_modules(char *file)
               next_object = skip_object(block, current, used);
               end = object_end(block, current, used);
               block[end]=0;
+/*	      do_error("  Processing subline: found option <%s>.", block+current);*/
               /* object runs from current to end, may be quoted, in NUL-terminated */
               switch (state)
               {
@@ -149,22 +150,27 @@ void scan_modules(char *file)
                   break;
                 case AS:
                   step->as = build_object(block, current, end);
+/*		  do_error("  as = %s", step->as);*/
                   state=COMMAND;
                   break;
                 case INTO:
                   step->into = build_object(block, current, end);
+/*		  do_error("  into = %s", step->into);*/
                   state=COMMAND;
                   break;
                 case FROM:
                   step->from = build_object(block, current, end);
+/*		  do_error("  from = %p", step->from);*/
                   state=COMMAND;
                   break;
                 case USING:
                   step->using = build_object(block, current, end);
+/*		  do_error("  using = %s", step->using);*/
                   state=COMMAND;
                   break;
                 case IN:
                   step->in = build_object(block, current, end);
+/*		  do_error("  in = %s", step->in);*/
                   state=COMMAND;
                   break;
               }
@@ -177,8 +183,7 @@ void scan_modules(char *file)
     }
     current = next_line;
   }
-
-  memfree(block);
+  /* don't free block - we're using it throughout the entire system! */
 }
 
 /* Slurps the file into core. *used_ptr is filled with the length of data.
@@ -299,9 +304,12 @@ void move_up(unsigned char *block, unsigned long start, unsigned long *end)
 
   for (current=start+1; current<real_end; current++)
   {
+/*    do_error("move_up(): moving %c back one (overwriting %c", block[current], block[current-1]);*/
     block[current-1] = block[current];
   }
 
+/*  do_error("move_up(): replacing %c with \0", block[current-1]);*/
+  block[current-1]=0;
   *end = real_end-1;
 }
 
@@ -609,19 +617,24 @@ void build_module(struct module *mod)
 {
   char *temp;
   int i;
-  if (mod==NULL)
+/*  do_error("build_module(%p)", mod);*/
+  if (mod==NULL || mod->done==1)
+  {
+/*    do_error("doesn't exist, or already done");*/
     return;
+  }
   /* run the build steps */
   for (i=0; i<mod->num_steps; i++)
     run_step(mod, mod->steps[i]);
   /* make the archive */
-  printf("ought to run '%s' (%s/%s%s) in %s\n",
-         read_option(mod, "archive"), read_option(mod, "archiveroot"),
-         mod->name, read_option(mod, "archiveext"), tmptree);
+  do_error("ought to run '%s' (%s/%s%s) in %s\n",
+	   read_option(mod, "archive"), read_option(mod, "archiveroot"),
+	   mod->name, read_option(mod, "archiveext"), tmptree);
   /* FIXME: run the 'archive' option followed by mod->name'archiveext'
    * and the complete contents of 'tmptree'.
    * chdir() to 'tmptree' first.
    */
+  mod->done=1;
 }
 
 struct module *find_module(char *name)
@@ -656,5 +669,6 @@ struct module *new_module(char *name)
   t->num_options=0;
   t->steps=NULL;
   t->num_steps=0;
+  t->done=0;
   return t;
 }

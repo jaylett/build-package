@@ -1,5 +1,5 @@
 /*
- * $Id: main.h,v 1.2 1999/09/07 13:49:58 james Exp $
+ * $Id: main.h,v 1.3 1999/09/16 16:54:14 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -22,7 +22,7 @@
 
 #define RMCOMMAND "rm -rf "
 char *tmptree;
-char *startdir;
+char *startdir=NULL;
 int deltree = -1; /* 0 => do delete it (it'll be in tmptree) */
 struct module *cli;
 

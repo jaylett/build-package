@@ -1,5 +1,5 @@
 /*
- * $Id: paths.h,v 1.1 1999/08/10 15:26:59 james Exp $
+ * $Id: paths.h,v 1.2 1999/09/16 16:54:14 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -20,3 +20,4 @@ char *comb_path(char *, char *, char *);
 char *comb_paths(char *, char *, char *);
 char *makename(char *, char *);
 void mkdirs(char *);
+void mkdirs_less_leaf(char *);

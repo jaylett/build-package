@@ -1,5 +1,5 @@
 /*
- * $Id: build.h,v 1.2 1999/09/07 13:49:58 james Exp $
+ * $Id: build.h,v 1.3 1999/09/16 16:54:13 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -40,6 +40,7 @@ struct module
   unsigned int num_options;
   struct step **steps;
   unsigned int num_steps;
+  unsigned int done;
 };
 
 struct step

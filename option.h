@@ -1,5 +1,5 @@
 /*
- * $Id: option.h,v 1.2 1999/09/07 13:49:58 james Exp $
+ * $Id: option.h,v 1.3 1999/09/16 16:54:14 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -16,6 +16,7 @@
 
 char *get_option(struct module *, int);
 int find_option(struct module *, char *);
+char *copy_string_no_trailing_spaces(char const *);
 
 #endif /* BUILD_MAIN */
 

@@ -1,5 +1,5 @@
 /*
- * $Id: main.c,v 1.2 1999/09/07 13:49:58 james Exp $
+ * $Id: main.c,v 1.3 1999/09/16 16:54:14 james Exp $
  * build-package
  * (c) Copyright James Aylett 1999
  *
@@ -20,12 +20,13 @@ int main(int argc, char const * const * argv)
   {
     { 'f', COOPT_REQUIRED_PARAM, "file" },
     { 'v', COOPT_NO_PARAM, "version" },
-    { 'h', COOPT_NO_PARAM, "help" }
+    { 'h', COOPT_NO_PARAM, "help" },
+    { 'C', COOPT_REQUIRED_PARAM, "directory" }
   };
 
   tmptree = memalloc(256 + sizeof(RMCOMMAND));
   strcpy(tmptree, RMCOMMAND);
-  tmptree += sizeof(RMCOMMAND);
+  tmptree += sizeof(RMCOMMAND)-1;
   cli = new_module("__cli__");
 
   coopt_init(&state, (struct coopt_option const *)&option,
@@ -41,6 +42,9 @@ int main(int argc, char const * const * argv)
       {
         switch (ret.opt->short_option)
 	{
+	  case 'C':
+	    startdir = strdup(ret.param);
+	    break;
           case 'f':
             controlfile = strdup(ret.param);
             break;
@@ -91,6 +95,7 @@ int main(int argc, char const * const * argv)
    * Eeek! The following isn't portable - relies on GNU extension
    * to getcwd().
    */
+  if (startdir==NULL)
   {
     int i = strlen(controlfile);
     do
@@ -113,12 +118,14 @@ int main(int argc, char const * const * argv)
       }
     }
   }
-  chdir(startdir);
+/*  do_error("chdir(%s)", startdir);*/
+  if (chdir(startdir)!=0)
+    fatal_error("couldn't change to start dir: errno = %i", errno);
 
   temp = read_option(NULL, "temproot");
   sprintf(tmptree, "%s/%s.%i", (temp==NULL)?("/tmp"):(temp), PROGRAM, (int)getpid());
   memfree(temp);
-  do_error("tmptree = %s", tmptree);
+/*  do_error("tmptree = %s", tmptree);*/
   if ((deltree = mkdir(tmptree, 0775))==-1)
   {
     if (errno>=sys_nerr || sys_errlist[errno]==NULL)
@@ -127,13 +134,7 @@ int main(int argc, char const * const * argv)
       fatal_error("couldn't create build directory (err = %s)", sys_errlist[errno]);
   }
 
-  if (num_build_modules>0 && build_modules!=NULL)
-  {
-    int i;
-    for (i=0; i<num_build_modules; i++)
-      build_module(find_module(build_modules[i]));
-  }
-  else
+  if (num_build_modules==0 || build_modules==NULL)
   {
     char *mods, *tok;
     mods = read_option(NULL, "all");
@@ -141,17 +142,26 @@ int main(int argc, char const * const * argv)
      * (eeek!)
      */
     if (mods==NULL)
-      fatal_error("Couldn't read option all.");
+      fatal_error("Couldn't read option 'all', and no modules supplied on command line.");
     tok = strtok(mods, " \t");
     while (tok!=NULL)
     {
-      build_module(find_module(tok));
+/*      do_error("adding module to build %s", tok);*/
+      add_string(&build_modules, &num_build_modules, tok);
       tok = strtok(NULL, " \t");
     }
     memfree(mods);
   }
 
-  return system(tmptree - sizeof(RMCOMMAND)); /* ie perform "rm -rf <tmptree>" */
+  if (num_build_modules>0 && build_modules!=NULL)
+  {
+    int i;
+    for (i=0; i<num_build_modules; i++)
+      build_module(find_module(build_modules[i]));
+  }
+
+  return system(tmptree - sizeof(RMCOMMAND) +1);
+  /* ie perform "rm -rf <tmptree>" */
 }
 
 char *do_getcwd()
@@ -171,7 +181,16 @@ char *do_getcwd()
 void do_help()
 {
   do_version();
-  /* FIXME: something proper here */
+  printf (
+"usage: %s [options] [module] ...\n"
+"\n"
+"  -f FILE, --file=FILE    read FILE as a build.parts file\n"
+"  -C DIRECTORY, --directory=DIRECTORY\n"
+"                          root at DIRECTORY instead of parent of build.parts\n"
+"\n"
+"  -h, --help              display this help message and quit\n"
+"  -V, --version           display version string and quit\n"
+    , PROGRAM);
 }
 
 void do_version()
